@@ -6,14 +6,29 @@ the workflow transition trigger. Without those, a test could "pass" against a
 fake that is more permissive than PostgreSQL.
 """
 
+import os
 from datetime import UTC, date, datetime
 from typing import Any
 from uuid import UUID, uuid4
 
 import pytest
 
-from app.core.config import Settings
-from app.schemas.followup import (
+# `app.main` builds Settings at import time, so importing the application
+# requires these to exist. Without them a fresh clone fails during collection —
+# every test, not just the ones touching config. Placeholders keep the suite
+# self-contained: no test contacts a provider, each either builds its own
+# Settings or overrides the dependency. setdefault so a developer who has
+# exported real values keeps them.
+os.environ.setdefault("OPERATOR_API_KEY", "test-operator-key")
+os.environ.setdefault("GEMINI_API_KEY", "test-gemini-key")
+os.environ.setdefault("SUPABASE_URL", "https://example.supabase.co")
+os.environ.setdefault("SUPABASE_SECRET_KEY", "test-secret")
+os.environ.setdefault("ZOHO_SMTP_USER", "ops@followops.test")
+os.environ.setdefault("ZOHO_SMTP_PASSWORD", "test-password")
+os.environ.setdefault("ZOHO_IMAP_ENABLED", "false")
+
+from app.core.config import Settings  # noqa: E402
+from app.schemas.followup import (  # noqa: E402
     ActionItem,
     CRMUpdate,
     EmailDraft,

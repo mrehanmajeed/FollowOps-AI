@@ -222,12 +222,20 @@ observable. `PGRST205` means the migrations were never applied.
 
 ## Verification Commands
 
+These need **no credentials and no `.env`** — the suite supplies its own
+placeholder configuration and contacts no provider:
+
 ```bash
-cd backend && python -m pytest -q
+cd backend && python -m pytest -q            # 74 tests
 cd backend && python -m ruff check app tests
 cd frontend && npm run build
-python evaluation/run_eval.py --offline
-python evaluation/run_eval.py
+python evaluation/run_eval.py --offline      # deterministic cases TC11-TC15
+```
+
+These do need a configured `.env`:
+
+```bash
+python evaluation/run_eval.py                # + Gemini extraction cases
 
 docker exec -i supabase_db_followops-ai   psql -U postgres -d postgres -f - < supabase/tests/enforcement.sql
 ```
