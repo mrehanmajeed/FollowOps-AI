@@ -1,0 +1,20 @@
+{
+  "case_id": "TC09",
+  "description": "Low-quality notes must not produce fabricated actions.",
+  "meeting_date": "2026-09-05",
+  "account_context": "",
+  "notes": "call ok. asdkjh. tbd?? follow up maybe. n/a n/a",
+  "expected_actions": [],
+  "expected_decisions": [],
+  "expected_owners": {},
+  "expected_due_dates": {},
+  "must_be_null_owner": [],
+  "must_be_null_due_date": [],
+  "forbidden_claims": [
+    "proposal",
+    "contract",
+    "we will send",
+    "next steps agreed"
+  ],
+  "expect_open_questions": true
+}

@@ -1,0 +1,22 @@
+{
+  "case_id": "TC05",
+  "description": "A decision is changed later in the meeting; the latest wins.",
+  "meeting_date": "2026-09-05",
+  "account_context": "Quanta Health. Existing customer, phased rollout.",
+  "notes": "Early in the call, Tom said they would start the rollout with the Berlin site.\nLater, after checking staffing, Tom changed this. He confirmed the final decision is to start the rollout with the Munich site instead, and that Berlin will come later.\nWe will update the rollout plan to reflect Munich first.",
+  "expected_actions": [
+    "update the rollout plan"
+  ],
+  "expected_decisions": [
+    "start the rollout with the Munich site"
+  ],
+  "expected_owners": {},
+  "expected_due_dates": {},
+  "must_be_null_owner": [],
+  "must_be_null_due_date": [],
+  "forbidden_claims": [
+    "start the rollout with the berlin site",
+    "beginning with berlin"
+  ],
+  "expect_open_questions": false
+}

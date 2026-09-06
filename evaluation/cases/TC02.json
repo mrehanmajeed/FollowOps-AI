@@ -1,0 +1,25 @@
+{
+  "case_id": "TC02",
+  "description": "Action with no stated deadline. The model must not invent one.",
+  "meeting_date": "2026-09-05",
+  "account_context": "Northwind Analytics. Prospect in technical evaluation.",
+  "notes": "Priya asked us to prepare a migration plan for their reporting stack.\nWe agreed that we will prepare the migration plan.\nNo date was discussed for the plan. Priya said she would come back to us on timing once her team has capacity.",
+  "expected_actions": [
+    "prepare the migration plan"
+  ],
+  "expected_decisions": [
+    "we will prepare the migration plan"
+  ],
+  "expected_owners": {},
+  "expected_due_dates": {},
+  "must_be_null_owner": [],
+  "must_be_null_due_date": [
+    "migration plan"
+  ],
+  "forbidden_claims": [
+    "next week",
+    "by friday",
+    "within 7 days"
+  ],
+  "expect_open_questions": false
+}

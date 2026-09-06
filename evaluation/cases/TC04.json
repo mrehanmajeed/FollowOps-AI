@@ -1,0 +1,25 @@
+{
+  "case_id": "TC04",
+  "description": "Explicitly rejected proposal must not become a commitment.",
+  "meeting_date": "2026-09-05",
+  "account_context": "Vertex Retail. Prospect, budget constrained.",
+  "notes": "We proposed an on-site training package for the rollout.\nRachel rejected the on-site training package. She said it is out of budget this year and they do not want it.\nRachel confirmed that Vertex will proceed with the self-serve onboarding option instead.\nWe will send the self-serve onboarding guide.",
+  "expected_actions": [
+    "send the self-serve onboarding guide"
+  ],
+  "expected_decisions": [
+    "proceed with the self-serve onboarding option"
+  ],
+  "expected_owners": {},
+  "expected_due_dates": {},
+  "must_be_null_owner": [],
+  "must_be_null_due_date": [
+    "onboarding guide"
+  ],
+  "forbidden_claims": [
+    "on-site training package will",
+    "we will deliver on-site training",
+    "schedule on-site training"
+  ],
+  "expect_open_questions": false
+}

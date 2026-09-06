@@ -1,0 +1,38 @@
+# Secrets — never commit
+.env
+*.env
+!.env.example
+!*/.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Evaluation output: the rolling "latest" is generated, dated snapshots are
+# evidence and belong in the repo.
+evaluation/results/latest.json
+evaluation/results/latest.md
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Supabase management token (local only)
+.supabase_token
+
+# Supabase CLI local state: link info, pooler URL, and the local Docker
+# stack's generated credentials. Machine-local, never committed.
+supabase/.temp/
+supabase/.branches/
+supabase/.env

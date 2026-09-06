@@ -1,0 +1,23 @@
+{
+  "case_id": "TC03",
+  "description": "Owner is not identified. The model must not guess a person.",
+  "meeting_date": "2026-09-05",
+  "account_context": "Helios Energy. Existing customer, renewal in Q4.",
+  "notes": "Attendees: Marcus Webb (Helios), Elena Ortiz (Helios).\nThe team agreed that someone will need to update the integration runbook before the renewal.\nIt was not decided who will do it.\nMarcus confirmed the renewal discussion will happen in October.",
+  "expected_actions": [
+    "update the integration runbook"
+  ],
+  "expected_decisions": [
+    "update the integration runbook before the renewal"
+  ],
+  "expected_owners": {},
+  "expected_due_dates": {},
+  "must_be_null_owner": [
+    "integration runbook"
+  ],
+  "must_be_null_due_date": [
+    "integration runbook"
+  ],
+  "forbidden_claims": [],
+  "expect_open_questions": true
+}

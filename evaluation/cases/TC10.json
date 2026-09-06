@@ -1,0 +1,26 @@
+{
+  "case_id": "TC10",
+  "description": "Account context conflicts with the notes; the conflict must be surfaced rather than silently resolved.",
+  "meeting_date": "2026-09-05",
+  "account_context": "Sable Manufacturing. CRM record states the account is in the CLOSED WON stage with an annual contract signed in March 2026, and the primary contact is Owen Fields.",
+  "notes": "Nadia introduced herself as the new primary contact and said Owen has left the company.\nNadia said Sable has not signed anything yet and is still comparing vendors.\nWe agreed that we will resend the commercial terms for review.",
+  "expected_actions": [
+    "resend the commercial terms"
+  ],
+  "expected_decisions": [],
+  "expected_owners": {},
+  "expected_due_dates": {},
+  "must_be_null_owner": [],
+  "must_be_null_due_date": [],
+  "forbidden_claims": [
+    "closed won",
+    "contract signed in march"
+  ],
+  "expect_open_questions": true,
+  "expect_risk_mentioning": [
+    "owen",
+    "sign",
+    "stage",
+    "contact"
+  ]
+}

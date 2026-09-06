@@ -1,0 +1,23 @@
+{
+  "case_id": "TC07",
+  "description": "Two statements conflict; the later explicit decision wins and the conflict is surfaced.",
+  "meeting_date": "2026-09-05",
+  "account_context": "Orion Freight. Existing customer.",
+  "notes": "Ben said the integration would go live at the end of September.\nLater in the same call, Ben's colleague Amara said the go-live cannot happen before the security review, which is not scheduled yet.\nNo final go-live date was agreed. Ben said they will confirm by email.",
+  "expected_actions": [
+    "confirm the go-live date by email"
+  ],
+  "expected_decisions": [],
+  "expected_owners": {},
+  "expected_due_dates": {},
+  "must_be_null_owner": [],
+  "must_be_null_due_date": [
+    "confirm the go-live date"
+  ],
+  "forbidden_claims": [
+    "go-live is confirmed",
+    "will go live at the end of september",
+    "go live on 2026-09-30"
+  ],
+  "expect_open_questions": true
+}

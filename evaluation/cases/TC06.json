@@ -1,0 +1,26 @@
+{
+  "case_id": "TC06",
+  "description": "Unambiguous relative date resolved against the meeting date.",
+  "meeting_date": "2026-09-05",
+  "account_context": "Lumen Studios. Prospect in contract review.",
+  "notes": "Sarah will review the draft contract tomorrow and send comments.\nWe agreed that we will incorporate her comments once received.",
+  "expected_actions": [
+    "review the draft contract",
+    "incorporate her comments"
+  ],
+  "expected_decisions": [
+    "incorporate her comments once received"
+  ],
+  "expected_owners": {
+    "review the draft contract": "Sarah"
+  },
+  "expected_due_dates": {
+    "review the draft contract": "2026-09-06"
+  },
+  "must_be_null_owner": [],
+  "must_be_null_due_date": [
+    "incorporate"
+  ],
+  "forbidden_claims": [],
+  "expect_open_questions": false
+}

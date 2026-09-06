@@ -1,0 +1,51 @@
+[
+  {
+    "case_id": "TC11",
+    "description": "A confirmed Zoho reply is correlated to the outbound email and stops future follow-ups.",
+    "tests": [
+      "tests/test_correlation.py::test_in_reply_to_is_a_confirmed_reply",
+      "tests/test_correlation.py::test_references_chain_is_a_confirmed_reply",
+      "tests/test_reply_processor.py::test_confirmed_reply_pauses_followups_and_audits",
+      "tests/test_workflow.py::test_paused_account_refuses_execution",
+      "tests/test_workflow.py::test_reply_landing_mid_execution_stops_the_send"
+    ]
+  },
+  {
+    "case_id": "TC12",
+    "description": "An unrelated mailbox message must not stop a workflow.",
+    "tests": [
+      "tests/test_correlation.py::test_unrelated_message_is_not_correlated",
+      "tests/test_reply_processor.py::test_unrelated_message_does_not_pause_anything",
+      "tests/test_correlation.py::test_auto_responder_threading_to_our_email_is_not_a_confirmed_reply",
+      "tests/test_correlation.py::test_bounce_message_is_not_a_confirmed_reply"
+    ]
+  },
+  {
+    "case_id": "TC13",
+    "description": "Processing the same IMAP message twice creates one effect.",
+    "tests": [
+      "tests/test_reply_processor.py::test_processing_the_same_message_twice_creates_one_event",
+      "tests/test_execution.py::test_second_attempt_does_not_repeat_a_succeeded_effect",
+      "tests/test_workflow.py::test_retry_after_partial_failure_does_not_resend_the_email"
+    ]
+  },
+  {
+    "case_id": "TC14",
+    "description": "SMTP failure yields a failed, retryable workflow and never a false completion.",
+    "tests": [
+      "tests/test_workflow.py::test_smtp_failure_fails_the_workflow_without_claiming_success",
+      "tests/test_execution.py::test_failed_operation_is_retryable",
+      "tests/test_execution.py::test_interrupted_operation_is_reported_in_doubt_not_resent"
+    ]
+  },
+  {
+    "case_id": "TC15",
+    "description": "An unapproved workflow cannot send email.",
+    "tests": [
+      "tests/test_workflow.py::test_execution_without_approval_is_refused",
+      "tests/test_workflow.py::test_blocked_package_cannot_be_approved",
+      "tests/test_workflow.py::test_rejection_stops_the_workflow_without_side_effects",
+      "tests/test_workflow.py::test_a_completed_workflow_cannot_be_approved_again"
+    ]
+  }
+]
