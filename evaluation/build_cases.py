@@ -248,12 +248,21 @@ EXTRACTION_CASES = [
             "We agreed that we will resend the commercial terms for review."
         ),
         "expected_actions": ["resend the commercial terms"],
-        "expected_decisions": [],
+        # The notes state "We agreed that we will resend the commercial terms
+        # for review" — an explicit agreement, and therefore a decision. The
+        # earlier empty list was a specification error, matching the one
+        # already corrected in TC03, TC06 and TC07.
+        "expected_decisions": ["resend the commercial terms for review"],
         "expected_owners": {},
         "expected_due_dates": {},
         "must_be_null_owner": [],
         "must_be_null_due_date": [],
-        "forbidden_claims": ["closed won", "contract signed in march"],
+        # This case requires the stale CRM state to be SURFACED, so the model
+        # must be able to name it in the summary, risks and CRM note. What must
+        # never happen is asserting it to the customer, so the check is scoped
+        # to the email rather than to the whole extraction.
+        "forbidden_claims": [],
+        "forbidden_in_email": ["closed won", "contract signed in march"],
         "expect_open_questions": True,
         "expect_risk_mentioning": ["owen", "sign", "stage", "contact"],
     },

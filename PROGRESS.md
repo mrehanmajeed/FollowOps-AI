@@ -213,36 +213,30 @@ A corrected re-run needs a fresh daily quota (20 requests/day, spent).
 
 Never measured: manual baseline, human review time.
 
-## Open evaluation decisions
+## Evaluation specification corrections
 
-Two changes to `evaluation/build_cases.py` are proposed but **not applied**,
-because editing expectations so a case passes is exactly the failure mode an
-evaluation suite exists to prevent, and the call belongs to a human:
+Two errors in TC10's specification were found while investigating its failure
+and have now been corrected. Both are verifiable from the case's own text
+without reference to any model output, which is what separates correcting a
+wrong assertion from tuning an evaluation to pass:
 
-1. TC10 `expected_decisions` should contain the resend-terms decision, which the
-   case's own notes state explicitly. This is the same specification error
-   already corrected in TC03, TC06 and TC07.
-2. The forbidden-claim check should be scoped to the customer email for TC10,
-   where asserting "closed won" would genuinely be wrong, instead of matching
-   anywhere in the extraction including the risk register that is supposed to
-   name it.
+1. `expected_decisions` was empty although the notes state "We agreed that we
+   will resend the commercial terms for review" — an explicit agreement, and
+   therefore a decision. This is the same error already corrected in TC03, TC06
+   and TC07. It had forced decision precision to 0 for the case.
+2. The forbidden-claim check was self-contradictory. TC10 requires the stale CRM
+   state to be *surfaced*, which means naming it, while the check matched the
+   phrase anywhere in the extraction — so satisfying the case guaranteed failing
+   the check. Forbidden claims now have two scopes: `forbidden_claims` (anywhere
+   in the extraction) and `forbidden_in_email` (client-facing text only). TC10
+   uses the latter, because asserting "closed won" to the customer is the
+   behaviour that would actually be wrong.
 
-Until they are made, TC10 fails for a reason that is understood and documented
-rather than silently adjusted away.
+Verified against TC10's real recorded generation without spending quota: the
+case now passes on correct output, and still fails when the stale CRM state is
+asserted in the email.
 
-## Remaining limitations
-
-- **Extraction metrics unmeasured** — Gemini free tier is 20 requests/day.
-- **CRM is simulated** — no external CRM adapter exists; every surface says so.
-- **`IN_DOUBT` needs a human** — SMTP cannot be asked whether it accepted a
-  message, so an interrupted send is never auto-resent.
-- **Authentication is one shared operator token**, not per-user identity.
-- **Hosted catalog introspection unavailable** — Management API 403 and a CLI
-  `db diff` bug; compensated by behavioural verification.
-- **A workflow that has written an audit event cannot be deleted.** This is the
-  append-only design working, but it means test fixtures persist. One such
-  fixture remains on the hosted project, marked
-  `failed / "Verification fixture: pause-guard test, never executed."`
+A confirming full re-run needs a fresh daily quota.
 
 ## Architectural decisions
 

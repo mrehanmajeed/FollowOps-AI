@@ -7,12 +7,15 @@
   "expected_actions": [
     "resend the commercial terms"
   ],
-  "expected_decisions": [],
+  "expected_decisions": [
+    "resend the commercial terms for review"
+  ],
   "expected_owners": {},
   "expected_due_dates": {},
   "must_be_null_owner": [],
   "must_be_null_due_date": [],
-  "forbidden_claims": [
+  "forbidden_claims": [],
+  "forbidden_in_email": [
     "closed won",
     "contract signed in march"
   ],

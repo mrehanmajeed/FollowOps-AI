@@ -161,11 +161,21 @@ async def run_extraction_case(case: dict[str, Any], service, validator) -> CaseR
     result.owner_score = score_owners(case, actions, result)
     result.deadline_score = score_deadlines(case, actions, result)
 
+    # Two scopes, because "must not appear anywhere" and "must not be said to
+    # the customer" are different assertions. A case that requires a conflict to
+    # be *surfaced* must be able to name the thing it is flagging internally,
+    # while still being forbidden from asserting it in the client-facing email.
     haystack = build_haystack(extraction)
     result.forbidden_claims_found = [
         claim
         for claim in case.get("forbidden_claims", [])
         if claim.lower() in haystack
+    ]
+    email_text = f"{extraction.email.subject} {extraction.email.body}".lower()
+    result.forbidden_claims_found += [
+        claim
+        for claim in case.get("forbidden_in_email", [])
+        if claim.lower() in email_text
     ]
 
     if case.get("expect_open_questions") and not (

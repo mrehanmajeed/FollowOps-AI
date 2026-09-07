@@ -284,6 +284,16 @@ match while a different commitment does not.
 Scoring runs on the **post-validation** package — what the operator actually
 sees — because validation is part of the product, not a post-processing step.
 
+Forbidden claims have two scopes, because "must not appear anywhere" and "must
+not be said to the customer" are different assertions:
+
+- `forbidden_claims` — matched against the whole extraction.
+- `forbidden_in_email` — matched against the customer-facing email only.
+
+A case that requires a conflict to be surfaced (TC10) must be able to name the
+thing it is flagging in the summary, risks and CRM note, while still being
+forbidden from asserting it to the client.
+
 Provider quota errors are recorded as `unmeasured`, never as failures: a `429`
 measures the billing plan, not the model.
 
