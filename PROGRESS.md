@@ -2,14 +2,15 @@
 
 Last updated: 2026-09-06
 
-**Status: FUNCTIONAL, HOSTED-VERIFIED, WITH ONE MEASUREMENT GAP.**
+**Status: FUNCTIONAL, HOSTED-VERIFIED, EVALUATION MEASURED.**
 
 The hosted Supabase project is migrated and the complete workflow —
 extraction, validation, approval, real email, reply detection, follow-up pause,
 idempotent retry, audit immutability — is verified against **hosted Supabase +
-real Gemini + real Zoho SMTP/IMAP + FastAPI**. The only thing not achieved is a
-full re-measurement of the ten model-extraction evaluation cases, because the
-Gemini free tier allows 20 requests per day and that budget is spent.
+real Gemini + real Zoho SMTP/IMAP + FastAPI**. All fifteen evaluation cases have
+now been run against the live model: 12/15 passed, and all three failures were
+defects in the evaluation tooling rather than in the model or the product. One
+of them was a real validator bug, now fixed.
 
 Legend used below: **[hosted]** verified against the live Supabase project ·
 **[local]** verified against the local Supabase stack (identical migrations) ·
@@ -33,7 +34,7 @@ not estimated.
 | Operator authentication | **[hosted]** 401 / 401 / 200 against the live API |
 | Frontend operator console | Builds clean; contract verified against hosted responses |
 | Evaluation: system cases | **[measured]** 5/5 |
-| Evaluation: extraction cases | **[unmeasured]** — quota |
+| Evaluation: extraction cases | **[measured]** 10/10 run, 7 passed |
 | CRM | Simulated, labelled as such everywhere |
 
 ## Verification evidence
@@ -48,7 +49,7 @@ frontend build             successful (tsc strict + vite)
 frontend type contract     8/8 response shapes match src/types against hosted data
 docker compose config      valid
 evaluation system cases    5/5 passed (TC11-TC15)
-evaluation extraction      unmeasured (Gemini daily quota)
+evaluation extraction      10/10 measured, 7 passed (2026-09-07)
 live API vs hosted         health 200; auth 401/401/200; no secrets in responses
 SMTP verify (via API)      ok — smtp.zoho.com
 IMAP verify (via API)      ok — imap.zoho.com, INBOX, 10 folders
@@ -175,14 +176,59 @@ System cases (deterministic) — **5/5 pass [measured]**:
 
 Database enforcement — **40/40 local, 24/24 hosted [measured]**.
 
-Extraction cases TC01–TC10 — **[unmeasured]**. The last full pass
-(`evaluation/results/2026-09-06-run1.md`) met the targets for action recall,
-owner extraction, deadline extraction, forbidden claims and latency, and missed
-on decision precision. Those numbers predate defect 6 and three
-case-specification corrections, so they are stale and are **not** restated as
-current. Re-run with `python evaluation/run_eval.py` once quota resets.
+Extraction cases TC01–TC10 — **[measured] 2026-09-07**, snapshot in
+`evaluation/results/2026-09-07-run2.md`. All ten ran; seven passed.
+
+```text
+action recall                 100.0%   target >= 90%    met
+decision precision             90.0%   target >= 90%    met
+owner extraction              100.0%   target >= 90%    met
+deadline extraction           100.0%   target >= 95%    met
+median latency                7982ms   target < 15s     met
+forbidden claims                   2   target 0         MISSED
+unsupported after validation       2   target 0         MISSED
+cases passed                    7/10
+```
+
+The two missed targets are reported exactly as measured. Investigation of all
+three failing cases showed the cause was evaluation tooling, not the model:
+
+- **TC05 and TC09** — `unsupported_after_validation`. Both were the validator
+  rejecting a *correct* email for restating the meeting date, e.g. "Thank you
+  for the call on 2026-09-05". The meeting date is trusted workflow input, not
+  a model invention, and belongs in the allowed set. Fixed, with two regression
+  tests. TC05 re-ran clean afterwards. This is the second real validator defect
+  the evaluation has caught, after the prose-date bug.
+- **TC10** — `forbidden claims`. The model behaved correctly: it surfaced the
+  CRM conflict in `risks` ("the CRM record states … CLOSED WON … but Nadia
+  stated Sable has not signed anything yet") and kept it out of the customer
+  email entirely. The forbidden-claim check is a substring match over the whole
+  extraction, so it cannot distinguish *citing* the stale CRM state — which the
+  case explicitly requires — from *asserting* it. TC10 also declares
+  `expected_decisions: []` although its notes contain "We agreed that we will
+  resend the commercial terms", which drove decision precision to 0 for that
+  case. Both are specification errors; see "Open evaluation decisions" below.
+
+A corrected re-run needs a fresh daily quota (20 requests/day, spent).
 
 Never measured: manual baseline, human review time.
+
+## Open evaluation decisions
+
+Two changes to `evaluation/build_cases.py` are proposed but **not applied**,
+because editing expectations so a case passes is exactly the failure mode an
+evaluation suite exists to prevent, and the call belongs to a human:
+
+1. TC10 `expected_decisions` should contain the resend-terms decision, which the
+   case's own notes state explicitly. This is the same specification error
+   already corrected in TC03, TC06 and TC07.
+2. The forbidden-claim check should be scoped to the customer email for TC10,
+   where asserting "closed won" would genuinely be wrong, instead of matching
+   anywhere in the extraction including the risk register that is supposed to
+   name it.
+
+Until they are made, TC10 fails for a reason that is understood and documented
+rather than silently adjusted away.
 
 ## Remaining limitations
 

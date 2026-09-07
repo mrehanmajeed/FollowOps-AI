@@ -136,3 +136,25 @@ def test_email_may_restate_a_date_written_in_prose_in_the_notes():
     extraction = make_extraction(email_body="The workshop is on 2026-09-20.")
     _, report = validate(extraction, notes=notes)
     assert not any(i.code == "email_unsupported_date" for i in report.issues)
+
+
+def test_email_may_reference_the_meeting_date_itself():
+    """Regression: the meeting date is trusted input, not a model invention.
+
+    TC09 produced a correct email — "Thank you for the call on 2026-09-05" —
+    that was blocked because the date appeared in neither the notes nor a
+    validated deadline.
+    """
+    extraction = make_extraction(
+        email_body="Thank you for the call on 2026-09-05. We will follow up."
+    )
+    _, report = validate(extraction, meeting_date=date(2026, 9, 5))
+    assert not any(i.code == "email_unsupported_date" for i in report.issues)
+
+
+def test_a_date_that_is_neither_meeting_nor_deadline_is_still_critical():
+    extraction = make_extraction(
+        email_body="Thank you for the call. We will deliver on 2027-01-15."
+    )
+    _, report = validate(extraction, meeting_date=date(2026, 9, 5))
+    assert any(i.code == "email_unsupported_date" for i in report.critical)

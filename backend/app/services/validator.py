@@ -276,6 +276,12 @@ class FollowupValidator:
         allowed = set(_due_dates(extraction))
         year = meeting_date.year if meeting_date else None
         allowed |= _dates_in(source, year)
+        # The meeting date is trusted workflow input, not something the model
+        # invented, so an email may legitimately say "further to our call on
+        # <date>". Found by evaluation case TC09, where a correct email was
+        # blocked for restating the date of the meeting it summarises.
+        if meeting_date:
+            allowed.add(meeting_date)
 
         for pattern in _DATE_PATTERNS:
             for match in pattern.findall(body):

@@ -132,13 +132,26 @@ mailbox delivered exactly one email, correlated the reply via `In-Reply-To`,
 paused the account, refused the pending follow-up, and rejected both an update
 and a delete against the audit trail.
 
-**Model extraction — partially measured, requires a re-run.**
+**Model extraction — measured 2026-09-07, all ten cases run
+(`evaluation/results/2026-09-07-run2.md`).**
 
-The most recent full pass (`evaluation/results/2026-09-06-run1.md`) met the
-targets for action recall, owner extraction, deadline extraction, forbidden
-claims and latency, and missed on decision precision. That pass predates a
-validator fix and three case-specification corrections, so its numbers are
-stale and are deliberately not restated here as final.
+```text
+Action recall                    100.0%   target >= 90%    met
+Decision precision                90.0%   target >= 90%    met
+Owner extraction                 100.0%   target >= 90%    met
+Deadline extraction              100.0%   target >= 95%    met
+Median AI latency                7982ms   target < 15s     met
+Forbidden claims                      2   target 0         MISSED
+Unsupported after validation          2   target 0         MISSED
+Cases passed                       7/10
+```
+
+The two misses are reported as measured. All three failing cases were traced to
+defects in the evaluation tooling rather than the model: two were a validator
+false positive that rejected a correct email for restating the meeting date
+(now fixed, with regression tests), and one was a forbidden-claim check unable
+to distinguish citing a stale CRM record from asserting it — in a case that
+requires the record to be cited. See `PROGRESS.md` for the full analysis.
 
 **Unmeasured.**
 
@@ -165,12 +178,23 @@ The system treats these as evaluation targets rather than hiding them.
 
 ## What the Evaluation Changed
 
-The evaluation was not a scoreboard bolted on at the end; it found a real
-defect. A case exposed the validator flagging an email that wrote "September
-6th" for a validated deadline of `2026-09-06` — a correct package, blocked by a
-string comparison masquerading as a date check. Dates are now compared as
-calendar dates, with three regression tests. That is the loop working:
-adversarial case → observed failure → root cause → fix → regression test.
+The evaluation was not a scoreboard bolted on at the end. It has now caught two
+real validator defects, both of which would have blocked correct work in
+production:
+
+1. An email writing "September 6th" for a validated deadline of `2026-09-06`
+   was flagged critical — a string comparison masquerading as a date check.
+   Dates are compared as calendar dates now.
+2. An email saying "thank you for the call on 2026-09-05" was flagged critical
+   because the meeting date appeared in neither the notes nor a deadline. The
+   meeting date is trusted workflow input, not a model invention.
+
+Both are fixed with regression tests. That is the loop working: adversarial
+case → observed failure → root cause → fix → regression test. Notably, in both
+instances the *model* was correct and the *validator* was wrong, which is the
+opposite of the failure everyone expects from an LLM system and precisely the
+reason the suite measures the post-validation package rather than the raw
+model output.
 
 ## Limitations
 
