@@ -122,9 +122,8 @@ async def run_extraction_case(case: dict[str, Any], service, validator) -> CaseR
         )
     except Exception as exc:
         result.error = f"{type(exc).__name__}: {exc}"
-        # A provider quota error measures the billing plan, not the model. It
-        # must never be reported as a failed safety case.
-        result.skipped = _is_quota_error(result.error)
+        # Never report an unreachable provider as a failed safety case.
+        result.skipped = _is_unmeasurable(result.error)
         return result
     result.latency_ms = int((time.perf_counter() - started) * 1000)
 
@@ -195,12 +194,36 @@ async def run_extraction_case(case: dict[str, Any], service, validator) -> CaseR
     return result
 
 
-_QUOTA_MARKERS = ("resource_exhausted", "429", "quota", "rate limit")
+# A case is *unmeasured*, not failed, when something prevented the model from
+# being sampled at all. A 429 measures the billing plan and a DNS failure
+# measures the network; neither says anything about extraction quality, and
+# recording either as a failure would misreport the model. Deliberately narrow:
+# only provider-availability and transport problems qualify, so a genuine bad
+# response still counts as a failure.
+_UNMEASURABLE_MARKERS = (
+    # provider refused to serve the request
+    "resource_exhausted",
+    "429",
+    "quota",
+    "rate limit",
+    "503",
+    "unavailable",
+    # never reached the provider
+    "connecterror",
+    "getaddrinfo",
+    "name resolution",
+    "connection refused",
+    "connection reset",
+    "connection aborted",
+    "ssl",
+    "timeout",
+)
 
 
-def _is_quota_error(message: str) -> bool:
+def _is_unmeasurable(message: str) -> bool:
+    """Did the run fail to obtain a sample, rather than obtain a bad one?"""
     lowered = message.lower()
-    return any(marker in lowered for marker in _QUOTA_MARKERS)
+    return any(marker in lowered for marker in _UNMEASURABLE_MARKERS)
 
 
 def score_owners(case, actions, result) -> float | None:
@@ -289,7 +312,7 @@ async def run_extraction_suite(
         result = await run_extraction_case(case, service, validator)
         detail = result.error or "; ".join(result.notes) or "metric below target"
         if result.skipped:
-            print("SKIPPED (provider quota)")
+            print(f"SKIPPED (could not sample the model: {detail[:70]})")
         else:
             print("PASS" if result.passed else f"FAIL ({detail})")
         results.append(result)

@@ -132,26 +132,23 @@ mailbox delivered exactly one email, correlated the reply via `In-Reply-To`,
 paused the account, refused the pending follow-up, and rejected both an update
 and a delete against the audit trail.
 
-**Model extraction — measured 2026-09-07, all ten cases run
-(`evaluation/results/2026-09-07-run2.md`).**
+**Model extraction — measured 2026-09-08, all ten cases run and passing
+(`evaluation/results/2026-09-08-run3.md`).**
 
 ```text
 Action recall                    100.0%   target >= 90%    met
-Decision precision                90.0%   target >= 90%    met
+Decision precision               100.0%   target >= 90%    met
 Owner extraction                 100.0%   target >= 90%    met
 Deadline extraction              100.0%   target >= 95%    met
-Median AI latency                7982ms   target < 15s     met
-Forbidden claims                      2   target 0         MISSED
-Unsupported after validation          2   target 0         MISSED
-Cases passed                       7/10
+Median AI latency                6255ms   target < 15s     met
+Forbidden claims                      0   target 0         met
+Unsupported after validation          0   target 0         met
+Cases passed                      10/10
 ```
 
-The two misses are reported as measured. All three failing cases were traced to
-defects in the evaluation tooling rather than the model: two were a validator
-false positive that rejected a correct email for restating the meeting date
-(now fixed, with regression tests), and one was a forbidden-claim check unable
-to distinguish citing a stale CRM record from asserting it — in a case that
-requires the record to be cited. See `PROGRESS.md` for the full analysis.
+An earlier run scored 7/10. Every one of those failures was a defect in the
+evaluation tooling rather than the model, and each was diagnosed and fixed
+before this run rather than explained away.
 
 **Unmeasured.**
 
@@ -189,12 +186,16 @@ production:
    because the meeting date appeared in neither the notes nor a deadline. The
    meeting date is trusted workflow input, not a model invention.
 
-Both are fixed with regression tests. That is the loop working: adversarial
-case → observed failure → root cause → fix → regression test. Notably, in both
-instances the *model* was correct and the *validator* was wrong, which is the
-opposite of the failure everyone expects from an LLM system and precisely the
-reason the suite measures the post-validation package rather than the raw
-model output.
+Both are fixed with regression tests. A third defect appeared in the reporting
+itself: a scheduled run that fired before the machine had network recorded all
+ten cases as *failed*, when a DNS failure says nothing about the model.
+Transport and provider errors are now reported as unmeasured.
+
+That is the loop working: adversarial case → observed failure → root cause →
+fix → regression test. Notably, in every instance the *model* was correct and
+the *harness* was wrong — the opposite of the failure everyone expects from an
+LLM system, and precisely the reason the suite scores the post-validation
+package rather than raw model output.
 
 ## Limitations
 

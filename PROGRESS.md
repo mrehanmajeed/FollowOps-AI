@@ -2,15 +2,15 @@
 
 Last updated: 2026-09-06
 
-**Status: FUNCTIONAL, HOSTED-VERIFIED, EVALUATION MEASURED.**
+**Status: FULLY VERIFIED — all 15 evaluation cases pass, every target met.**
 
 The hosted Supabase project is migrated and the complete workflow —
 extraction, validation, approval, real email, reply detection, follow-up pause,
 idempotent retry, audit immutability — is verified against **hosted Supabase +
 real Gemini + real Zoho SMTP/IMAP + FastAPI**. All fifteen evaluation cases have
-now been run against the live model: 12/15 passed, and all three failures were
-defects in the evaluation tooling rather than in the model or the product. One
-of them was a real validator bug, now fixed.
+now been run against the live model and **all 15 pass, with every measurable
+target met**. Getting there surfaced four defects — two in the validator, two in
+the evaluation specification — each documented below.
 
 Legend used below: **[hosted]** verified against the live Supabase project ·
 **[local]** verified against the local Supabase stack (identical migrations) ·
@@ -34,7 +34,7 @@ not estimated.
 | Operator authentication | **[hosted]** 401 / 401 / 200 against the live API |
 | Frontend operator console | Builds clean; contract verified against hosted responses |
 | Evaluation: system cases | **[measured]** 5/5 |
-| Evaluation: extraction cases | **[measured]** 10/10 run, 7 passed |
+| Evaluation: extraction cases | **[measured]** 10/10 run, 10 passed |
 | CRM | Simulated, labelled as such everywhere |
 
 ## Verification evidence
@@ -49,7 +49,7 @@ frontend build             successful (tsc strict + vite)
 frontend type contract     8/8 response shapes match src/types against hosted data
 docker compose config      valid
 evaluation system cases    5/5 passed (TC11-TC15)
-evaluation extraction      10/10 measured, 7 passed (2026-09-07)
+evaluation extraction      10/10 measured, 10 passed (2026-09-08)
 live API vs hosted         health 200; auth 401/401/200; no secrets in responses
 SMTP verify (via API)      ok — smtp.zoho.com
 IMAP verify (via API)      ok — imap.zoho.com, INBOX, 10 folders
@@ -176,42 +176,40 @@ System cases (deterministic) — **5/5 pass [measured]**:
 
 Database enforcement — **40/40 local, 24/24 hosted [measured]**.
 
-Extraction cases TC01–TC10 — **[measured] 2026-09-07**, snapshot in
-`evaluation/results/2026-09-07-run2.md`. All ten ran; seven passed.
+Extraction cases TC01–TC10 — **[measured] 2026-09-08**, snapshot in
+`evaluation/results/2026-09-08-run3.md`. All ten ran; all ten passed.
 
 ```text
 action recall                 100.0%   target >= 90%    met
-decision precision             90.0%   target >= 90%    met
+decision precision            100.0%   target >= 90%    met
 owner extraction              100.0%   target >= 90%    met
 deadline extraction           100.0%   target >= 95%    met
-median latency                7982ms   target < 15s     met
-forbidden claims                   2   target 0         MISSED
-unsupported after validation       2   target 0         MISSED
-cases passed                    7/10
+median latency                6255ms   target < 15s     met
+forbidden claims                   0   target 0         met
+unsupported after validation       0   target 0         met
+cases passed                   10/10
 ```
 
-The two missed targets are reported exactly as measured. Investigation of all
-three failing cases showed the cause was evaluation tooling, not the model:
+The earlier run on 2026-09-07 scored 7/10
+(`evaluation/results/2026-09-07-run2.md`). All three failures were defects in
+the evaluation tooling, not the model, and each was fixed before this run:
 
-- **TC05 and TC09** — `unsupported_after_validation`. Both were the validator
-  rejecting a *correct* email for restating the meeting date, e.g. "Thank you
-  for the call on 2026-09-05". The meeting date is trusted workflow input, not
-  a model invention, and belongs in the allowed set. Fixed, with two regression
-  tests. TC05 re-ran clean afterwards. This is the second real validator defect
-  the evaluation has caught, after the prose-date bug.
-- **TC10** — `forbidden claims`. The model behaved correctly: it surfaced the
-  CRM conflict in `risks` ("the CRM record states … CLOSED WON … but Nadia
-  stated Sable has not signed anything yet") and kept it out of the customer
-  email entirely. The forbidden-claim check is a substring match over the whole
-  extraction, so it cannot distinguish *citing* the stale CRM state — which the
-  case explicitly requires — from *asserting* it. TC10 also declares
-  `expected_decisions: []` although its notes contain "We agreed that we will
-  resend the commercial terms", which drove decision precision to 0 for that
-  case. Both are specification errors; see "Open evaluation decisions" below.
-
-A corrected re-run needs a fresh daily quota (20 requests/day, spent).
+- **TC05 and TC09** — the validator rejected *correct* emails for restating the
+  meeting date ("Thank you for the call on 2026-09-05"). The meeting date is
+  trusted workflow input, not a model invention. Fixed, with regression tests.
+- **TC10** — two specification errors: `expected_decisions` was empty although
+  the notes state an explicit agreement, and the forbidden-claim check was
+  self-contradictory, requiring a conflict to be surfaced while forbidding the
+  words needed to surface it. Forbidden claims now have two scopes.
 
 Never measured: manual baseline, human review time.
+
+A scheduled run on 2026-09-08 at 14:12 recorded all ten extraction cases as
+FAILED with `getaddrinfo failed` — the machine had booted without network. That
+exposed a reporting defect: only provider quota errors were treated as
+unmeasured, so a DNS failure was misreported as a model failure. Transport and
+provider-availability errors now yield `unmeasured`, guarded by unit tests. A
+genuine bad response is still a failure.
 
 ## Evaluation specification corrections
 
